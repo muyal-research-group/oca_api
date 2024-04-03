@@ -1,4 +1,5 @@
 test.py
 data/
-oca_catalogs/
-src/__pycache__/
+oca_api/
+src/**/__pycache__/
+src/**/log

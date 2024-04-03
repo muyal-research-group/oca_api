@@ -1,6 +1,83 @@
-# Observatory and Catalog REST - API 
+# Observatory - API 
+An observatory is an object that contain N catalogs. This object is used in the user interface to create a page dinamically. The catalogs are use to match products that are listed in the UI. We can use the values in the catalogs to create queries. You can se an example of an observatory at [here](https://muyal.tamps.cinvestav.mx/observatories). You need to have an account please contact me a at jesus.castillo.b@cinvestav.mx to request your account.
 
-This API allows the manipulation of ```observatory``` objects and ```catalogs``` objects. An observatory has the following structure:
+So in code an observatory has a simple structure like this: 
+```python
+class Observatory:
+    obid:str
+    title: str
+    image_url:str
+    description:str
+    catalogs:List[LevelCatalog]
+    disabled:bool 
+```
+
+You can create one of this using this [endpoint](https://alpha.tamps.cinvestav.mx/ocapi/redoc#operation/create_observatory_observatories_post). 
+
+# Catalog - API 
+
+A catalog is a collection of values. Catalogs has an special attribute that define its ```kind```. We use this attribute to perform advanced queries.
+```python
+class Catalog:
+    cid:str
+    display_name:str 
+    items: List[CatalogItem]
+    kind:str 
+```
+
+You can create a catalog using this [endpoint](https://alpha.tamps.cinvestav.mx/ocapi/redoc#operation/create_catalogs_catalogs_post). ⚠️ The supported ```kind``` values are the followin: ```TEMPORAL```, ```SPATIAL```, ```INTEREST```, ```INTEREST_NUMERIC```. 
+
+# Product - API 
+A product can be anything you want, you defined like this:
+```python
+class Product(BaseModel):
+    pid:str # Product unique identifier
+    description:str # A simple description
+    levels:List[Level] # levels defined later
+    product_type: str # the type of the product
+    level_path:str # xD the name of the levels (e.g CIE10.SEXO)
+    profile:str # The value of the levels (e.g C50.MUJER)
+    product_name: str # Name of the product xd 
+    tags:List[str] # Tags for advancing permission control
+```
+
+The product has levels, this are defined like this:
+```python
+class Level(BaseModel):
+    index:int # this value determines the position in the user interface.
+    cid:str # The unique identifier of the catalog for this level.
+    value:str # The value in the catalog
+    kind:str # the kind of the level maybe spatial, temporal, and so on.
+```
+
+You can create may products in bulk using the next [endpoint](https://alpha.tamps.cinvestav.mx/ocapi/redoc#operation/create_products_products_post). 
+
+
+# Getting started
+
+You can run this service locally in your computer or in a server using the docker image:
+
+```bash
+docker pull nachocode/oca:api
+```
+
+Now you can clone this repo:
+```bash
+git clone git@github.com:muyal-research-group/oca_api.git
+```
+
+You need to be inside the folder ```oca_api```
+```bash
+cd oca_api
+```
+
+Execute the next command:
+```sh
+docker compose up -f ./oca.yml  up -d 
+```
+
+
+<!-- This API allows the manipulation of ```observatory``` objects and ```catalogs``` objects. An observatory has the following structure:
 ```json
 {
     "key": "string",
@@ -193,4 +270,4 @@ The last catalog is the years from 2000 to 2023
 
     ]
 }
-```
+``` -->
