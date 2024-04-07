@@ -38,20 +38,40 @@ class SpatialFilter(BaseModel):
     state: str
     municipality: str
     def make_regex(self):
-        x = "^"
-        if self.country =="*":
-            x +="*"
+        
+        x = ""
+        if self.country == "*":
+            x+=".*"
         else:
-            x += "{}".format(self.country)
-        if self.state =="*":
-            x +="\.*"
+            x+= self.country+"\\."
+        
+        if self.state == "*":
+            x+=".*"
         else:
-            x += "\.{}".format(self.state)
-        if self.municipality =="*":
-            x +="\.*"
+            x+= "{}".format(self.state)
+        
+        if self.municipality == "*":
+            x+=".*"
         else:
-            x += "\.{}".format(self.municipality)
+            x+= "{}".format(self.municipality)
+            
         return x.upper()
+        # return "{}|{}|{}".format(self.country, self.state,self.municipality).upper()
+        # x = "^"
+        # if self.country =="*":
+        #     x +=".*\\"
+        # else:
+        #     x += "{}".format(self.country)
+        
+        # if self.state =="*":
+        #     x +="\\..*"
+        # else:
+        #     x += "\\.{}".format(self.state)
+        # if self.municipality =="*":
+        #     x +="\\.*"
+        # else:
+        #     x += "\\.{}".format(self.municipality)
+        # return x.upper()
         
 
         # return "{}".format()

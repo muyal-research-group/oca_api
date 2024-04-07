@@ -83,5 +83,5 @@ class ObservatoryDAO(object):
         else:
             return NONE
 
-    def delete(self,key:str)->DeleteResult:
-        return self.collection.delete_one({"key": key})
+    def delete_by_obid(self,obid:str)->DeleteResult:
+        return self.collection.delete_one({"obid": obid})

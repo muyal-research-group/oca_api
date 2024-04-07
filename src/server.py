@@ -99,7 +99,7 @@ def delete_observatory_by_obid(obid:str):
     if exists.is_none:
         raise HTTPException(detail="Observatory(obid={}) not found.".format(obid), status_code=404)
     else:
-        response = observatory_dao.delete(key=obid)
+        response = observatory_dao.delete_by_obid(obid=obid)
         return Response(content=None, status_code=204)
 
 
@@ -136,11 +136,22 @@ def get_observatory_by_key(obid:str):
 @app.post("/catalogs")
 def create_catalogs(catalog:Catalog):
     exists = catalog_dao.find_by_cid(cid=catalog.cid)
+    log.debug({
+        "event":"CREATE.CATALOG",
+        "exists":exists.is_some,
+        "cid":catalog.cid,
+        "display_name":catalog.display_name,
+        "kind":catalog.kind
+    })
     if exists.is_some:
         return Response(content="Catalog(cid={}) already exists.".format(catalog.cid), status_code=403)
     res = catalog_dao.create(catalog=catalog)
+    # print(res)
     if res.is_err:
         error = res.unwrap_err()
+        log.error({
+            "msg":str(error)
+        })
         raise HTTPException(status_code=500, detail="Catalog creation failed: {}".format(error))
     return { "cid": catalog.cid}
 
@@ -172,6 +183,13 @@ def get_products(skip:int =0, limit:int = 100):
     documents = product_dao.find_all(skip=skip,limit=limit)
     return documents
 
+@app.get("/products/{pid}")
+def get_products(pid:str):
+    documents = product_dao.find_by_pid(pid=pid)
+    if documents.is_none:
+        raise HTTPException(status_code=404, detail="Product not found.")
+    return documents.unwrap()
+
 # @app.get("/products/filter")
 # def filter_products(tags:str,levels:str, skip:int =0, limit:int = 100):
 #     splitted_levels = levels.split(",")
@@ -197,6 +215,7 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
         c = _catalog.unwrap()
         catalogs.append(c)
     
+    print(filters)
     temporal_catalog = next(filter(lambda x: x.kind=="TEMPORAL", catalogs),None)
     spatial_catalog = next(filter(lambda x: x.kind=="SPATIAL", catalogs),None)
     interest_catlaog = next(filter(lambda x: x.kind=="INTEREST", catalogs),None)
@@ -300,6 +319,15 @@ def create_products(products:List[Product]):
     return Response(content=None,status_code=201,)
 
 
+
+@app.delete("/products/{pid}")
+def delete_product_by_pid(pid:str):
+    exists = product_dao.find_by_pid(pid=pid)
+    if exists.is_none:
+        raise HTTPException(detail="Product(pid={}) not found.".format(pid), status_code=404)
+    else:
+        response = product_dao.delete(pid=pid)
+        return Response(content=None, status_code=204)
 
 if __name__ =="__main__":
     uvicorn.run(
