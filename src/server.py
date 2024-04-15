@@ -199,7 +199,7 @@ def get_products(pid:str):
 #     return products
 
 @app.post("/observatories/{obid}/products/nid")
-def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int = 100):
+def get_products_by_filter(obid:str,filters:ProductFilter,tags:List[str],skip:int =0, limit:int = 100):
     result = observatory_dao.find_by_obid(obid=obid)
     if result.is_none:
         raise HTTPException(
@@ -221,6 +221,17 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
     interest_catlaog = next(filter(lambda x: x.kind=="INTEREST", catalogs),None)
     # print("TEMPORAL",temporal_catalog)
     pipeline = []
+
+    if not len(tags) ==0 :
+        pipeline.append(
+                {
+                    "$match":{
+                        "tags":{
+                            "$all":tags
+                        }
+                    }
+                }
+        )
     temporal_vals= []
     if not temporal_catalog == None:
         for e in temporal_catalog.items:
