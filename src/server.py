@@ -200,12 +200,14 @@ def get_products(pid:str):
 
 @app.post("/observatories/{obid}/products/nid")
 def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int = 100):
+
     result = observatory_dao.find_by_obid(obid=obid)
     if result.is_none:
         raise HTTPException(
             detail="Observatory(obid={}) not found".format(obid),
             status_code=500
         )
+    
     observatory = result.unwrap()
     catalogs:List[CatalogDTO] = []
     for catalog in observatory.catalogs:
@@ -219,6 +221,7 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
     temporal_catalog = next(filter(lambda x: x.kind=="TEMPORAL", catalogs),None)
     spatial_catalog = next(filter(lambda x: x.kind=="SPATIAL", catalogs),None)
     interest_catlaog = next(filter(lambda x: x.kind=="INTEREST", catalogs),None)
+
     # print("TEMPORAL",temporal_catalog)
     pipeline = []
     temporal_vals= []
@@ -240,16 +243,14 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
         }
         pipeline.append(temporal_match)
     if not spatial_catalog == None:
-        # v = "{}.{}.{}".format(filters.spatial.country,filters.spatial.state,filters.spatial.municipality)
+
         spatial_regex = filters.spatial.make_regex()
-        # print(spatial_regex)
         spatial_match = {
-            # "$match":{
-                "levels.value":{
-                    "$regex":spatial_regex
-                }
-            # }
+            "levels.value":{
+                "$regex":spatial_regex
+            }
         }
+
         pipeline.append(spatial_match)
     print(interest_catlaog)
     if not interest_catlaog == None:
@@ -257,14 +258,12 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
             print("INTEREST",interest)
             if not interest.value  == None:
                 x = {
-                    # "$match":{
-                        "levels":{
-                            "$elemMatch":{
-                                "kind":"INTEREST",
-                                "value":{"$in":[interest.value]}
-                            }
+                    "levels":{
+                        "$elemMatch":{
+                            "kind":"INTEREST",
+                            "value":{"$in":[interest.value]}
                         }
-                    # }
+                    }
                 }
                 pipeline.append(x)
             if not interest.inequality == None:

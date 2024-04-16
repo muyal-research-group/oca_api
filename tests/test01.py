@@ -3,7 +3,9 @@ import json as J
 import unittest as UT
 from uuid import uuid4
 import pandas as pd
+import re 
 import json as J
+import unicodedata as UD
 # from nanoid import nan
 from pymongo import MongoClient
 # from 
@@ -36,7 +38,41 @@ class TestsSuit(UT.TestCase):
 
         
 
+    @UT.skip("")
+    def test_substances(self):
+        with open("./data/substances.json","rb") as f:
+            data =J.loads(f.read())
+            items = []
+            for code,item in enumerate(data):
+                cas = item["cas"]
+                substance = item["sustancia"]
+                print()
+                display_name = "{} - {}".format(substance,cas)
+                value = UD.normalize("NFD",display_name)
+                value = ''.join(c for c in value if  UD.category(c) != 'Mn')
+                value = re.sub(r"[\s'(),.-]+","",value).upper()
+                x = {
+                    "display_name":display_name,
+                    "code":code,
+                    "description": item.get("description",""),
+                    "metadata":{},
+                    "value":value
+                    # .replace("'","").replace(" ","").replace("_","").replace(")","").replace("(","").replace("-","").upper()
+                }
+                items.append(x)
+            catalog = {
+                "cid":"substancesx",
+                "display_name":"Sustancias",
+                "items":items
+            }
+            bd = J.dumps(catalog,indent=4)
+        with open("./data/substances_new.json","w") as f:
+            f.write(bd)
+
+            
+            # print(catalog)
     # @UT.skip("")
+    @UT.skip("")
     def test_municipios(self):
         # catalog = {
         #     "name":"puebla_municipios",
@@ -169,5 +205,74 @@ class TestsSuit(UT.TestCase):
         # with open("./data/bc_municipios.json","w") as f:
         #     f.write(J.dumps(bc_mun,indent=4))
 
+    def test_generate_year_catalog(self):
+        items = []
+        for k,i in enumerate(range(2004,2023)):
+            catalog_item = {
+                "value":str(i),
+                "display_name":str(i),
+                "code":k,
+                "description":"Año {}".format(i),
+                "metadata":{}
+            }
+            items.append(catalog_item)
+        catalog = {
+            "cid":"year20042022",
+            "display_name":"Año",
+            "items":items,
+            "kind":"TEMPORAL"
+        }
+        with open("./data/year_new.json","w") as f:
+            f.write(J.dumps(catalog,indent=4))
+
+    @UT.skip("")
+    def test_generate_mun_and_states_catalogs(self):
+        items_states         = []
+        items_municipalities = []
+        with open("./data/cve_ent_mun.json","r") as f:
+            data = J.loads(f.read())
+        j_global= 0
+        for i,x in enumerate(data):
+            estado = x["entidad"]
+            items_states.append({
+                "display_name": estado.title(),
+                "code":i,
+                "description": "Estado de {} con clave de entidad {}".format(estado,x["cve_ent"]),
+                "metadata":{
+
+                },
+                "value":estado.upper().replace(" ","")
+            })
+            for municipio in x["municipios"]:
+                municipality = municipio["municipio"]
+                cve_mun = municipio["cve_mun"]
+                items_municipalities.append({
+                    "display_name": municipality.title(),
+                    "code":j_global,
+                    "description": "Estado de {} con clave de municipio {}".format(estado,municipio["cve_mun"]),
+                    "metadata":{
+                        "cve_mun":str(cve_mun),
+                        "cve_ent":str(municipio["cve_ent"])
+                    },
+                    "value":municipality.upper().replace(" ","")
+                })
+                j_global +=1
+        states_catalogs = {
+            "cid":"states8ce52701ba74",
+            "display_name":"Estados",
+            "items":items_states
+        }
+        municipalities_catalogs = {
+            "cid":"municipalities4478fa9c66ab",
+            "display_name":"Municipios",
+            "items":items_municipalities
+        }
+        with open("./data/states_new.json","w") as f:
+            f.write(J.dumps(states_catalogs,indent=4))
+        with open("./data/municipalities_new.json","w") as f:
+            f.write(J.dumps(municipalities_catalogs,indent=4))
+
+            # print(entidad)
+        # print(data)
 if __name__ == "__main__":
     UT.main()
