@@ -222,24 +222,20 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
     spatial_catalog = next(filter(lambda x: x.kind=="SPATIAL", catalogs),None)
     interest_catlaog = next(filter(lambda x: x.kind=="INTEREST", catalogs),None)
 
-    # print("TEMPORAL",temporal_catalog)
     pipeline = []
     temporal_vals= []
     if not temporal_catalog == None:
         for e in temporal_catalog.items:
             v = int(e.value)
             if v >= filters.temporal.low and v <= filters.temporal.high:
-                # print("VALID",v)
                 temporal_vals.append(str(v))
         temporal_match =    {
-                # '$match': {
                     'levels': {
                         '$elemMatch': {
                             'kind': 'TEMPORAL',
                             'value': {'$in': temporal_vals}
                         }
                     }
-                # }
         }
         pipeline.append(temporal_match)
     if not spatial_catalog == None:
@@ -268,7 +264,6 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
                 pipeline.append(x)
             if not interest.inequality == None:
                 x = {
-                    # "$match":{
                         "levels":{
                             "$elemMatch":{
                                 "kind":"INTEREST_NUMERIC",
@@ -278,7 +273,6 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
                                 }
                             }
                         }
-                    # }
                 }
                 pipeline.append(x)
 
@@ -296,19 +290,9 @@ def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int
     for document in curosr:
         del document["_id"]
         documents.append(document)
-    # print("SPATIAL",spatial_catalog)
-    # print("INTEREST", interest_catlaog)
-    # print(documents)
     return JSONResponse(
         content= jsonable_encoder(documents)
-        # jsonable_encoder(documents)
     )
-    # return Response(status_code=204,content=J)
-    # splitted_levels = levels.split(",")
-    # _tags = tags.split(",")
-    # result = product_dao.filter_by_levels(tags=_tags,levels=splitted_levels,skip=skip, limit=limit)
-    # products = product_dao.find_all_by_ids(ids = result)
-    # return products
 
 @app.post("/products")
 def create_products(products:List[Product]):
