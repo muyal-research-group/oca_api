@@ -16,7 +16,6 @@ from log.log import Log
 
 
 LOG_DEBUG = bool(int(os.environ.get("LOG_DEBUG","1")))
-# print("LOG_DEBUG",LOG_DEBUG)
 log = Log(
     name=os.environ.get("LOG_NAME","ocapi"),
     path=os.environ.get("LOG_OUTPUT_PATH","/log"),
@@ -55,9 +54,10 @@ def generate_openapi():
 app.openapi = generate_openapi
 # .openapi()
 
-ip_addr                  = os.environ.get("MONGO_IP_ADDR","localhost")
-port                     = os.environ.get("MONGO_PORT",27017)
-client                   = MongoClient(os.environ.get("MONGO_URI","mongodb://{}:{}/".format(ip_addr, port)))
+MONGODB_IP_ADDR          = os.environ.get("MONGO_IP_ADDR","localhost")
+MOGNGODB_PORT            = int(os.environ.get("MONGO_PORT",27017))
+MONGODB_URI              = os.environ.get("MONGO_URI","mongodb://{}:{}/".format(MONGODB_IP_ADDR, MOGNGODB_PORT))
+client                   = MongoClient(MONGODB_URI)
 MONGO_DATABASE_NAME      = os.environ.get("MONGO_DATABASE_NAME","oca")
 db                       = client[MONGO_DATABASE_NAME]
 catalog_dao              = CatalogDAO(collection=db["catalogs"])
@@ -199,7 +199,7 @@ def get_products(pid:str):
 #     return products
 
 @app.post("/observatories/{obid}/products/nid")
-def get_products_by_filter(obid:str,filters:ProductFilter,tags:List[str],skip:int =0, limit:int = 100):
+def get_products_by_filter(obid:str,filters:ProductFilter,skip:int =0, limit:int = 100):
     result = observatory_dao.find_by_obid(obid=obid)
     if result.is_none:
         raise HTTPException(
@@ -222,19 +222,19 @@ def get_products_by_filter(obid:str,filters:ProductFilter,tags:List[str],skip:in
     interest_catlaog = next(filter(lambda x: x.kind=="INTEREST", catalogs),None)
 
     pipeline = []
-
+    tags=filters.tags
     if not len(tags) ==0 :
         pipeline.append(
                 {
-                    "$match":{
-                        "tags":{
-                            "$all":tags
-                        }
+                    "tags":{
+                        "$all":tags
                     }
                 }
         )
     temporal_vals= []
-    if not temporal_catalog == None:
+
+
+    if (not temporal_catalog == None) and  (not filters.temporal == None):
         for e in temporal_catalog.items:
             v = int(e.value)
             if v >= filters.temporal.low and v <= filters.temporal.high:
@@ -248,7 +248,7 @@ def get_products_by_filter(obid:str,filters:ProductFilter,tags:List[str],skip:in
                     }
         }
         pipeline.append(temporal_match)
-    if not spatial_catalog == None:
+    if (not spatial_catalog == None) and (not filters.spatial == None):
 
         spatial_regex = filters.spatial.make_regex()
         spatial_match = {
@@ -258,8 +258,8 @@ def get_products_by_filter(obid:str,filters:ProductFilter,tags:List[str],skip:in
         }
 
         pipeline.append(spatial_match)
-    print(interest_catlaog)
-    if not interest_catlaog == None:
+    # print(interest_catlaog)
+    if (not interest_catlaog == None) and not (len(filters.interest) == 0):
         for interest in filters.interest:
             print("INTEREST",interest)
             if not interest.value  == None:
@@ -287,13 +287,18 @@ def get_products_by_filter(obid:str,filters:ProductFilter,tags:List[str],skip:in
                 pipeline.append(x)
 
                 
-    _pipeline = [
-        {
-            "$match":{
-                "$and":pipeline
+
+    if len(pipeline) == 0:
+        _pipeline = [{"$match":{}}]
+    else:
+        _pipeline = [
+            {
+                "$match":{
+                    "$and":pipeline
+                }
             }
-        }
-    ]
+        ]
+    
     print(jsonable_encoder(_pipeline))
     curosr = product_dao.collection.aggregate(pipeline=_pipeline)
     documents = []
@@ -321,6 +326,13 @@ def delete_product_by_pid(pid:str):
     else:
         response = product_dao.delete(pid=pid)
         return Response(content=None, status_code=204)
+
+
+@app.get("/test")
+def my_endpoint():
+    return {
+        "msg":"HELLO BITCHES"
+    }
 
 if __name__ =="__main__":
     uvicorn.run(
