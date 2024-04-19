@@ -82,6 +82,7 @@ class ProductFilter(BaseModel):
     temporal: Optional[TemporalFilter] = None
     spatial: Optional[SpatialFilter] = None
     interest: List[InterestFilter]=[]
+    tags:List[str] = []
 
 class Level(BaseModel):
     index:int
