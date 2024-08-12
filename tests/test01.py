@@ -7,71 +7,11 @@ import re
 import json as J
 import unicodedata as UD
 # from nanoid import nan
-from pymongo import MongoClient
-# from 
 
 
 class TestsSuit(UT.TestCase):
 
 
-    @UT.skip("")
-    def test_cie(self):
-        catalog = {
-            "name":"cie",
-            "display_name":"Clasificación Internacional de Enfermedades",
-            "items":[
-
-            ]
-        }
-        df  = pd.read_csv("./data/CIE10.csv")
-        for (index, row) in df.iterrows():
-            item = {
-                "name": row["CLAVE"],
-                "display_name": "{} - {}".format(row["CLAVE"],row["DESCRIP"]),
-                "code": row["codigo"],
-                "description": "No description yet.",
-                "metadata": {}
-            }
-            catalog["items"].append(item)
-        with open("./data/cie.json","w") as f:
-            f.write(J.dumps(catalog,indent=4,ensure_ascii=True))
-
-        
-
-    @UT.skip("")
-    def test_substances(self):
-        with open("./data/substances.json","rb") as f:
-            data =J.loads(f.read())
-            items = []
-            for code,item in enumerate(data):
-                cas = item["cas"]
-                substance = item["sustancia"]
-                print()
-                display_name = "{} - {}".format(substance,cas)
-                value = UD.normalize("NFD",display_name)
-                value = ''.join(c for c in value if  UD.category(c) != 'Mn')
-                value = re.sub(r"[\s'(),.-]+","",value).upper()
-                x = {
-                    "display_name":display_name,
-                    "code":code,
-                    "description": item.get("description",""),
-                    "metadata":{},
-                    "value":value
-                    # .replace("'","").replace(" ","").replace("_","").replace(")","").replace("(","").replace("-","").upper()
-                }
-                items.append(x)
-            catalog = {
-                "cid":"substancesx",
-                "display_name":"Sustancias",
-                "items":items
-            }
-            bd = J.dumps(catalog,indent=4)
-        with open("./data/substances_new.json","w") as f:
-            f.write(bd)
-
-            
-            # print(catalog)
-    # @UT.skip("")
     @UT.skip("")
     def test_municipios(self):
         # catalog = {
@@ -127,46 +67,7 @@ class TestsSuit(UT.TestCase):
         # for (index,row) in df.iterrows():
             # print(index,row)
 
-
-    @UT.skip("")
-    def test_list_products(self):
-        
-        # 
-        list_products = pd.read_csv("./data/list_products.csv")
-        for (index, row) in list_products.iterrows():
-            product_type = row["product_type"]
-            kind = row["product_kind"]
-            level_index = row["product_level"]
-            level_path= row["level_path"]
-            profile = row["porfile"]
-            product_name = row["product_name"]
-            print(product_type,kind,level_index,level_path,profile,product_name)
-            # print(index,row)
-    @UT.skip("")
-    def test_mongo(self):
-        ip_addr = os.environ.get("MONGO_IP_ADDR","localhost")
-        port    = os.environ.get("MONGO_PORT",27017)
-        client = MongoClient(os.environ.get("MONGO_URI","mongodb://{}:{}/".format(ip_addr, port)))
-        db     = client["oca"]
-        catalogs = db["catalogs"]
-        # print(catalogs)
-        with open("./data/semarnat_cas_iarc_catalog.json" ,"rb") as f:
-            data = J.loads(f.read())
-            catalogs_entry = {
-                "items": data,
-                # "name":"SEMARNAT-NRA-EMISORAS",
-                # "name":"IARC-GROUPS",
-                # "name":"IARC-SUBSTANCES",
-                # "name":"SEMARNAT-CAS-IARC",
-                "key":"catalog-{}".format(uuid4().hex)
-            }
-            print(catalogs_entry["key"])
-            catalogs.insert_one(catalogs_entry)
-            # for item in data:
-                # print(item)
-
-        # client.
-        # client
+   
     @UT.skip("")
     def test_process_catalogs(self):
         with open("./data/semarnat_nra_emisoras.json" ,"rb") as f:

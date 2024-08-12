@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ocaapi"
+version = "0.1.0"
+description = ""
+authors = ["Ignacio Castillo <ignacio.bcastillo@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.111.1"
+uvicorn = "^0.30.4"
+pymongo = "^4.8.0"
+option = "^2.1.0"
+nanoid = "^2.0.0"
+pydantic = "^2.8.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

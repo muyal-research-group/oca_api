@@ -1,31 +1,5 @@
-version: "3.3"
+version: "3"
 services:
- mongol:
-  image: mongo:6-jammy
-  container_name: mongol
-  ports:
-    - 27017:27017
-  volumes:
-    - oca-db:/data/db
-  networks:
-    - oca
-  restart: unless-stopped
-  
- oca-api:
-  image: nachocode/oca:api
-  container_name: oca-api
-  environment:
-    - IP_ADDR=0.0.0.0
-    - PORT=5000
-    - RELOAD=0
-    - MONGO_IP_ADDR=mongol
-    - LOG_DEBUG=1
-  ports:
-    - 5000:5000
-  networks:
-    - oca
-  volumes:
-    - "/log:/log"
  xolo-db:
   image: mongo:6-jammy
   ports:
@@ -33,7 +7,7 @@ services:
   volumes:
     - xolo-db:/data/db
   networks:
-    - oca
+    - mictlanx
   restart: unless-stopped
 
  xolo:
@@ -57,12 +31,13 @@ services:
     - /log:/log
     - /mictlanx/xolo:/mictlanx/xolo
   networks:
-    - oca
+    - mictlanx
   depends_on:
     - xolo-db
 
 networks:
-  oca:
+ mictlanx:
+  external: true
 volumes:
-  oca-db:
-  xolo-db:
+ xolo-db:
+  external: true

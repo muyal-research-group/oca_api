@@ -6,13 +6,13 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from fastapi.openapi.utils import get_openapi
 from pymongo import MongoClient
-from interfaces.dao.catalog import Catalog,CatalogDAO,CatalogDTO
-from interfaces.dao.observatory import Observatory,ObservatoryDAO,LevelCatalog
-from interfaces.dao.products import ProductDAO,Product,ProductFilter
-from interfaces.dao.rating import RatingDAO,RatingDTO,Rating
+from ocaapi.interfaces.dao.catalog import Catalog,CatalogDAO,CatalogDTO
+from ocaapi.interfaces.dao.observatory import Observatory,ObservatoryDAO,LevelCatalog
+from ocaapi.interfaces.dao.products import ProductDAO,Product,ProductFilter
+from ocaapi.interfaces.dao.rating import RatingDAO,RatingDTO,Rating
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
-from log.log import Log
+from ocaapi.log.log import Log
 
 
 LOG_DEBUG = bool(int(os.environ.get("LOG_DEBUG","1")))
@@ -336,7 +336,7 @@ def my_endpoint():
 
 if __name__ =="__main__":
     uvicorn.run(
-        host=os.environ.get("IP_ADDR"), 
+        host=os.environ.get("IP_ADDR","0.0.0.0"), 
         port=int(os.environ.get("PORT","5000")),
         reload=bool(int(os.environ.get("REALOAD","1"))),
         app="server:app"

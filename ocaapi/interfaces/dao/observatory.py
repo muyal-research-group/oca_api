@@ -6,8 +6,8 @@ from typing import Union,List,Any
 import json as J
 import string as S
 from nanoid import generate as nanoid
-from interfaces.dto.observatory import ObservatoryDTO,LevelCatalogDTO
-from utils.utils import Utils as U
+from ocaapi.interfaces.dto.observatory import ObservatoryDTO,LevelCatalogDTO
+from ocaapi.utils.utils import Utils as U
 # def check_string(s):
 #     s_len = len(s)
 #     return s.isalnum() and (s_len >=18 and s_len <=32)
