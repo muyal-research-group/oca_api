@@ -1,0 +1,13 @@
+FROM mongo:6-jammy
+
+# Copy the keyfile from your local machine to the container
+COPY ./configs/mongo1.conf /etc/mongo/mongod.conf
+COPY ./mongokey /data/key/mongokey
+
+# Set the correct permissions and ownership for the keyfile
+RUN chmod 600 /data/key/mongokey
+RUN chown 999:999 /data/key/mongokey
+# RUN  id -u mongodb | xargs -I{} chown {}:{} /data/key/mongokey
+
+# Use the default MongoDB entrypoint
+CMD ["mongod", "--config", "/etc/mongo/mongod.conf"]
