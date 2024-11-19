@@ -7,7 +7,7 @@ class PlotDescription(BaseModel):
     z_axis      :Optional[str] = ""
     hue         :Optional[str] = ""
     title       :Optional[str] = ""
-class ContextualVariables(BaseModel):
+class ContextualVars(BaseModel):
     spatial_var: Optional[str] = ""
     temporal_var: Optional[str] = ""
     product_type: Optional[str] = ""
@@ -24,6 +24,6 @@ class ProductModel(BaseModel):
     data_source_id: Optional[str] =""
     data_view_id  : Optional[str] = ""
     plot_desc     : PlotDescription
-    ctx_vars      : ContextualVariables
+    ctx_vars      : ContextualVars
     content_vars  : ContentVars
     disabled      : Optional[bool]= False

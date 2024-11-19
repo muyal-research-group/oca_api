@@ -7,7 +7,8 @@ from ocaapi.db import get_collection
 from ocaapi.log.log import Log
 from ocaapi.services.v2 import ProductsService
 from ocaapi.repositories.v2 import ProductRepository
-from ocaapi.dto.v2 import ProductDTO,ProductCreationDTO
+from ocaapi.dto.v2 import ProductDTO
+from ocaapi.querylang.dto import  ProductCreationDTO
 
 LOG_DEBUG = bool(int(os.environ.get("LOG_DEBUG","1")))
 log = Log(

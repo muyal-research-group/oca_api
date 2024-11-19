@@ -1,6 +1,8 @@
-from typing import Optional,List,Tuple, Any,Generator
+from typing import Optional,List,Tuple, Any,Generator,Dict
 from pydantic import BaseModel
-from ocaapi.models.v2 import XVariableModel
+from ocaapi.models.v2 import XVariableModel,XVariableType,XType
+# import ocaapi.querylang.peg as qlx
+import json as J
 import hashlib as H
 
 class ObservatoryDTO(BaseModel):
@@ -11,19 +13,79 @@ class ObservatoryDTO(BaseModel):
 class XVariableAssignmentDTO(BaseModel):
     xid:str
     xvid:str
+
 class XVariableDTO(BaseModel):
     xvid: Optional[str] = ""
-    type: str
-    value: str
     description:Optional[str]="No description yet."
-    parent_id: Optional[str] = None
+    type: str
+    xtype:Optional[XType] = XType.X
+    variable_type:Optional[XVariableType] = None
+    raw: Optional[str] =""
+    order: Optional[int] = -1 
+    value: Any
+    
+    def build(self):
+        try:
+            hasher          = H.sha256()
+            self.type = self.type.upper()
+            
+            hasher.update(self.type.encode("utf-8"))
+            if self.xtype == XType.String or self.xtype == XType.Float or self.xtype == XType.Integer or self.xtype == XType.X:
+                if self.xtype == XType.String:
+                    self.value = self.value.upper()
+
+                xbytes         = f"{self.value}".encode("utf8")
+                self.raw=f"{self.type}({self.value})"
+                hasher.update(xbytes)
+            elif self.xtype == XType.Array:
+                str_xs = list(map(lambda x: str(x).upper(), self.value))
+                self.value = str_xs
+                xs = "".join(str_xs)
+                
+                self.raw= f"{self.type}({str(str_xs) })"
+                hasher.update(xs.encode("utf-8"))
+
+            elif self.xtype == XType.Date:
+                date_str = self.value.isoformat()
+                self.raw = f"{self.type}({self.value.month},{self.value.day},{self.value.year})"
+                hasher.update(date_str.encode("utf-8"))
+            elif self.xtype == XType.DateRange:
+                _start = self.value["start"]
+                _end  = self.value["end"]
+                start_date = _start.isoformat()
+                end_date   = _end.isoformat()
+                left_open  = self.value["left_open"]
+                right_open = self.value["right_open"]
+                left       = "(" if left_open else "["
+                right      = ")" if right_open else "]"
+                x = f"{left}{start_date}{end_date}{right}"
+                self.raw = f"{left}Date({_start.month},{_start.day},{_start.year}),Date({_end.month},{_end.day},{_end.year}){right}"
+                hasher.update(x.encode("utf-8"))
+            elif self.xtype == XType.IntegerRange or self.xtype == XType.Range:
+                start = self.value["start"]
+                end   = self.value["end"]
+                step  = self.value.get("step",1)
+                left_open  = self.value["left_open"]
+                right_open = self.value["right_open"]
+                left       = "(" if left_open else "["
+                right      = ")" if right_open else "]"
+                x     = f"{left}{start}{end}{step}{right}"
+                self.raw = f"{left}{self.type}({start},{end},{step}){right}"
+                hasher.update(x.encode("utf-8"))
+            elif self.xtype == XType.Object:
+                normalized_data = J.dumps(self.value,sort_keys=True)
+                data_bytes = normalized_data.encode("utf-8")
+                hasher.update(data_bytes)
+            xvid             = hasher.hexdigest()
+            self.xvid = xvid
+        except Exception as e:
+            print(f"Error building the Xvariable, please check the format: {e}")
+
     @staticmethod
     def from_model(x:XVariableModel)->'XVariableDTO':
         return XVariableDTO(
             **x.model_dump()
         )
-
-# class XVariableAssignmentDTO()
 
 class ProductDTO(BaseModel):
     pid: str
@@ -42,33 +104,10 @@ class ProductFoundDTO(BaseModel):
     tags:Optional[List[TagDTO]] = []
 
 
+class XVariableParentRelationshipDTO(BaseModel):
+    parent_id: str
+    child_id: str
 
-class PlotDescriptionDTO(BaseModel):
-    function_id: Optional[str] = ""
-    x_axis     :Optional[str]  = ""
-    y_axis     :Optional[str]  = ""
-    z_axis     :Optional[str]  = ""
-    hue        :Optional[str]  = ""
-    title:Optional[str] =""
-
-class ContextualVariablesDTO(BaseModel):
-    spatial_var: Optional[str] = ""
-    temporal_var: Optional[str] = ""
-    product_type: Optional[str] = ""
-
-class ContentVarsDTO(BaseModel):
-    interest_var   :Optional[str] = ""
-    observable_var :Optional[str] = ""
-    info           :Optional[str] = ""
-
-class ProductCreationDTO(BaseModel):
-    name          : str
-    description   : Optional[str] = ""
-    data_source_id: Optional[str] = ""
-    data_view_id  : Optional[str] = ""
-    plot_desc     : PlotDescriptionDTO
-    ctx_vars      : ContextualVariablesDTO
-    content_vars  : ContentVarsDTO
  
 class XVariableRawAssignmentDTO(BaseModel):
     kind: str
@@ -83,7 +122,6 @@ class ManyProductsMultipleXVariableAssignmentDTO(BaseModel):
     xid: Optional[List[str]] = []
     is_product: Optional[bool] = False
     assignments: Optional[List[XVariableRawAssignmentDTO]]=[]
-
 
 
 class XVariableInfoDTO(BaseModel):

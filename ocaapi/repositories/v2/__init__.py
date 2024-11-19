@@ -1,5 +1,5 @@
-from ocaapi.models.v2 import XVariableAssignment, ProductModel,XVariableModel,ObservatoryModel
-from ocaapi.dto.v2 import ObservatoryDTO,XVariableDTO,MultipleXVariableAssignmentDTO,ProductDTO,XVariableRawAssignmentDTO,XVariableAssignmentDTO
+from ocaapi.models.v2 import XVariableAssignment, ProductModel,XVariableModel,ObservatoryModel,XVariableParentRelationshipModel
+from ocaapi.dto.v2 import ObservatoryDTO,XVariableDTO,MultipleXVariableAssignmentDTO,ProductDTO,XVariableRawAssignmentDTO,XVariableAssignmentDTO,XVariableParentRelationshipDTO
 from motor.motor_asyncio import AsyncIOMotorCollection
 from option import Result,Ok,Err
 from nanoid import generate as nanoid
@@ -46,6 +46,20 @@ class XVariablesRepository:
             return Ok(variable.xvid)
         except Exception as e:
             return Err(e)
+        
+    async def exists(self, xvid:str)->bool:
+        try:
+            x = await self.find_by_xvid( xvid = xvid )
+            return x.is_ok
+        except Exception as e:
+            return False
+    
+    async def create_many(self, xs: List[XVariableModel])->Result[int, Exception]:
+        try:
+            x = await self.collection.insert_many([x.model_dump() for x in xs])
+            return Ok(len(x.inserted_ids))
+        except Exception as e:
+            return Err(e)
 
     async def find_by_type_value(self,type:str, value:str)->Result[XVariableDTO,Exception]:
         try:
@@ -89,6 +103,37 @@ class XVariablesRepository:
         x = await self.find_by_xvid(xvid=xvid)
         return x.is_ok
 
+class XVariableParentRelationshipRepository:
+    def __init__(self,collection:AsyncIOMotorCollection):
+        self.collection = collection
+    async def find_by_parent_and_child_ids(self, parent_id:str, child_id:str)->Result[XVariableParentRelationshipDTO, Exception]:
+        try:
+            res = await self.collection.find_one({"parent_id":parent_id, "child_id":child_id})
+            if not res:
+                return Err(Exception("Xvariable parent relatioship not found"))
+            return Ok(XVariableParentRelationshipDTO(**res))
+        except Exception as e:
+            return Err(e)
+    async def exists(self, parent_id:str, child_id:str)->bool:
+        try:
+            res = await self.find_by_parent_and_child_ids(parent_id, child_id)
+            return res.is_ok
+        # Ok(XVariableParentRelationshipDTO(**res))
+        except Exception as e:
+            return False
+
+    async def create(self,model:XVariableParentRelationshipModel)->Result[str, Exception]:
+        try:
+            x = await self.collection.insert_one(model.model_dump())
+            return Ok(model.parent_id)
+        except Exception as e:
+            return Err(e)
+    async def create_many(self,xs:List[XVariableParentRelationshipModel])->Result[List[str], Exception]:
+        try:
+            res = await self.collection.insert_many([x.model_dump() for x in xs] )
+            return  Ok(list(map(lambda x:x.parent_id, xs)))
+        except Exception as e:
+            return Err(e)
 class XVariableAssignmentRepository:
 
     def __init__(self, collection:AsyncIOMotorCollection):
@@ -146,6 +191,7 @@ class ProductRepository:
 
     async def create(self, product:ProductModel )->Result[str, Exception]:
         try:
+            
             x = await self.collection.insert_one(product.model_dump())
             return Ok(product.pid)
         except Exception as e:

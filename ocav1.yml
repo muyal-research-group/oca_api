@@ -4,7 +4,7 @@ services:
   image: mongo:6-jammy
   container_name: mongol
   ports:
-    - 27017:27017
+    - 27027:27017
   volumes:
     - oca-db:/data/db
   networks:
@@ -29,7 +29,7 @@ services:
  xolo-db:
   image: mongo:6-jammy
   ports:
-    - 27018:27017
+    - 27028:27017
   volumes:
     - xolo-db:/data/db
   networks:
