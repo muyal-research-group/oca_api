@@ -1,6 +1,6 @@
 use admin;
 db.createUser({
-  user: "oca1",
+  user: "oca",
   pwd: "d22a75e9e729debc",
   roles: [{ role: "root", db: "admin" }]
 });

@@ -17642,22 +17642,3 @@ SPATIAL = {
 }
 
 
-INTEREST = {
-    "SEX":{
-        "display_name":"Sex",
-        "order":-1, 
-        "values":[
-            {
-                "id":0,
-                "values":["MALE","HOMBRE","MAN"],
-                "description":""
-            },
-            {
-                "id":1,
-                "values":["FEMALE","MUJER","WOMAN"],
-                "description":""
-            },
-
-        ]
-    }
-}

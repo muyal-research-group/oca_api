@@ -29,7 +29,10 @@ def get_service()->CatalogsService:
 
 
 @router.post("/catalogs")
-async def create_catalogs(catalog:CatalogDTO, catalog_service:CatalogsService= Depends(get_service) ):
+async def create_catalogs(
+    catalog:CatalogDTO, 
+    catalog_service:CatalogsService= Depends(get_service) 
+):
     start_time = T.time()
 
     exists = await catalog_service.find_by_cid(cid=catalog.cid)
