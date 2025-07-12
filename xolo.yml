@@ -1,0 +1,43 @@
+version: "3"
+services:
+ xolo-db:
+  image: mongo:6-jammy
+  ports:
+    - 27018:27017
+  volumes:
+    - xolo-db:/data/db
+  networks:
+    - mictlanx
+  restart: unless-stopped
+
+ xolo:
+  image: nachocode/xolo:api
+  container_name: xolo-api
+  environment:
+    - OPENAPI_LOGO=https://alpha.tamps.cinvestav.mx/v0/mictlanx/peer0/api/v4/buckets/public-bucket-0/b0953e8db4cab5ea7a1f30a9f2695f43d3649e67e92e4060bcbc59d8a4b358f7
+    - XOLO_ACL_OUTPUT_PATH=/mictlanx/xolo
+    - XOLO_ACL_FILENAME=xolo-acl.enc
+    - XOLO_ACL_DAEMON_HEARTBEAT=1min
+    - XOLO_ACL_KEY=ed448c7a5449e9603058ce630e26c9e3befb2b15e3692411c001e0b4256852d2
+    - MONGO_IP_ADDR=xolo-db
+    - MONGO_PORT=27017
+    - MONGO_DATABASE_NAME=mictlanx
+    - IP_ADDR=0.0.0.0
+    - PORT=10001
+    - RELOAD=0
+  ports:
+    - 10001:10001
+  volumes:
+    - /log:/log
+    - /mictlanx/xolo:/mictlanx/xolo
+  networks:
+    - mictlanx
+  depends_on:
+    - xolo-db
+
+networks:
+ mictlanx:
+  external: true
+volumes:
+ xolo-db:
+  external: true

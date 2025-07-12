@@ -1,110 +1,111 @@
-# Observatory - API 
-An observatory is an object that contain N catalogs. This object is used in the user interface to create a page dinamically. The catalogs are use to match products that are listed in the UI. We can use the values in the catalogs to create queries. You can se an example of an observatory at [here](https://muyal.tamps.cinvestav.mx/observatories). You need to have an account please contact me a at jesus.castillo.b@cinvestav.mx to request your account.
-
-So in code an observatory has a simple structure like this: 
-```python
-class Observatory:
-    obid:str
-    title: str
-    image_url:str
-    description:str
-    catalogs:List[LevelCatalog]
-    disabled:bool 
-```
-
-You can create one of this using this [endpoint](https://alpha.tamps.cinvestav.mx/ocapi/redoc#operation/create_observatory_observatories_post). 
-
-# Catalog - API 
-
-A catalog is a collection of values. Catalogs has an special attribute that define its ```kind```. We use this attribute to perform advanced queries.
-```python
-class Catalog:
-    cid:str
-    display_name:str 
-    items: List[CatalogItem]
-    kind:str 
-```
-
-You can create a catalog using this [endpoint](https://alpha.tamps.cinvestav.mx/ocapi/redoc#operation/create_catalogs_catalogs_post). ⚠️ The supported ```kind``` values are the followin: ```TEMPORAL```, ```SPATIAL```, ```INTEREST```, ```INTEREST_NUMERIC```. 
-
-# Product - API 
-A product can be anything you want, you defined like this:
-```python
-class Product(BaseModel):
-    pid:str # Product unique identifier
-    description:str # A simple description
-    levels:List[Level] # levels defined later
-    product_type: str # the type of the product
-    level_path:str # xD the name of the levels (e.g CIE10.SEXO)
-    profile:str # The value of the levels (e.g C50.MUJER)
-    product_name: str # Name of the product xd 
-    tags:List[str] # Tags for advancing permission control
-```
-
-The product has levels, this are defined like this:
-```python
-class Level(BaseModel):
-    index:int # this value determines the position in the user interface.
-    cid:str # The unique identifier of the catalog for this level.
-    value:str # The value in the catalog
-    kind:str # the kind of the level maybe spatial, temporal, and so on.
-```
-
-You can create may products in bulk using the next [endpoint](https://alpha.tamps.cinvestav.mx/ocapi/redoc#operation/create_products_products_post). 
 
 
-# Getting started
+## MongoDB cluster
+1. Create key: 
+You must use the script ```db/createkey.sh``` ⚠️ Please execute this command insde the ```db/``` folder, if you dont execute it in that path, you should move the ```keyfile``` to ```db/```. 
 
-You can run this service locally in your computer or in a server using the docker image:
 
-```bash
-docker pull nachocode/oca:api
-```
-
-Now you can clone this repo:
-```bash
-git clone git@github.com:muyal-research-group/oca_api.git
-```
-
-You need to be inside the folder ```oca_api```
-```bash
-cd oca_api
-```
-
-Execute the next command:
 ```sh
-docker compose up -f ./oca.yml  up -d 
+cd db && chmod +x ./createkey.sh && ./createkey.sh
+
 ```
 
-## Contributing
+2. Update the mongodb configuration ```db/oca-db-0.conf```
+```conf
+#replication:
+#  replSetName: rs0
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+net:
+  bindIp: 0.0.0.0
+  port: 27017
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
+#security:
+  #authorization: enabled
+  #keyFile: /etc/mongo/keyfile
+```
+3. Start the cluster:
+```sh
+docker compose -f cluste.yml up -d
+```
 
 
+4. Enter to the first mongodb node  ⚠️ update the ```<container_id``` with the actual identifier of the container running at 27017:
 
-<!-- CONTACT -->
-## Contact
+```sh
+docker exec -it <container_id> sh
+```
 
- Ignacio Castillo - [@NachoCastillo]() - jesus.castillo.b@cinvestav.mx
+5. Inside the terminal of the container execute this:
+```sh 
+use admin;
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+db.createUser({
+  user: "oca",
+  pwd: "d22a75e9e729debc",
+  roles: [{ role: "root", db: "admin" }]
+});
+```
+Check if the user was created succefully with this command: 
+```sh
+db.getUsers();
+## You'll see something like this 
+{
+  users: [
+    {
+      _id: 'admin.oca',
+      userId: UUID('233cf8af-61d0-40ae-80e5-99bfa2031391'),
+      user: 'oca',
+      db: 'admin',
+      roles: [ { role: 'root', db: 'admin' } ],
+      mechanisms: [ 'SCRAM-SHA-1', 'SCRAM-SHA-256' ]
+    }
+  ],
+  ok: 1
+}
+```
+
+6. Test if the user is persisted:
+
+```sh
+docker compose -f cluste.yml down
+```
+
+Then you must mofidy the ```db/oca-db-0.conf``` and enable only security like this:
+
+```conf
+#replication:
+#  replSetName: rs0
+
+net:
+  bindIp: 0.0.0.0
+  port: 27017
+
+security:
+  authorization: enabled
+  keyFile: /etc/mongo/keyfile
+```
+
+Then start the cluster again
+```sh
+docker compose -f cluste.yml up -d
+```
+
+Then verify if you can logging try first to get inside the terminal of the mongo db at ```27017``` and in the terminal of the mongo db execute this: 
+
+```sh
+mongosh -u oca -p d22a75e9e729debc --authenticationDatabase admin
+```
+you must authenticated correctly. if you cannot authenticated please try again from the step (5)
+
+6. Now you can  start the server
+
+```
+chmod +x ./run_local.sh && ./run_local.sh
+
+INFO:     Will watch for changes in these directories: 
+INFO:     Uvicorn running on http://0.0.0.0:5000 (Press CTRL+C to quit)
+INFO:     Started reloader process [6783] using WatchFiles
+INFO:     Started server process [6785]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete
+```

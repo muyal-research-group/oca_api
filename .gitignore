@@ -1,4 +1,8 @@
 test.py
 data/
-oca_api/
-src/**/__pycache__/
+db/mongokey
+**/**/__pycache__/
+tests/**/__pycache__/
+.vscode/
+**/*.lock
+db/keyfile
