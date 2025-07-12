@@ -5,3 +5,4 @@ db/mongokey
 tests/**/__pycache__/
 .vscode/
 **/*.lock
+db/keyfile

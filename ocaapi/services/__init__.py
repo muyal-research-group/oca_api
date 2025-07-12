@@ -44,14 +44,14 @@ class CatalogsService:
         try:
             x = await self.repository.find_by_cid(cid=cid)
             if x.is_none:
-                return Err(NotFound(detail="Catalog not found.",))
+                return Err(NotFound(detail=f"Catalog(cid={cid}) not found.",))
             return Ok(x.unwrap())
         except Exception as e:
             return Err(e)
-    async def find_all(self,query:Dict[str,Any]={},skip:int =0, limit:str=100)->List[CatalogDTO]:
+    async def find_all(self,query:Dict[str,Any]={},skip:int =0, limit:str=100)->Result[List[CatalogDTO], Exception]:
         try:
             xs = await self.repository.find_all(query=query, skip=skip, limit=limit)
-            return xs
+            return Ok(xs)
         except Exception as e:
             return Err(e)
     async def delete_by_cid(self, cid:str)->Result[str, Exception]:

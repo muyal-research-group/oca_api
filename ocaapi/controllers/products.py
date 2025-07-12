@@ -63,8 +63,8 @@ async def get_product_by_pid(pid:str,product_service: ProductsService = Depends(
 
 
 
-# @router.post("/observatories/{obid}/products/nid")
-@router.post("/f/products/{obid}")
+@router.post("/observatories/{obid}/products/nid")
+# @router.post("/f/products/{obid}")
 async def get_products_by_filter(
     obid:str,
     filters:ProductFilter,
@@ -193,8 +193,14 @@ async def get_products_by_filter(
 @router.post("/products")
 async def create_products(products:List[ProductDTO], product_service: ProductsService = Depends(get_service)):
     start_time = T.time()
-    await product_service.create_many(products=products)
+    res = await product_service.create_many(products=products)
+    if res.is_err:
+        raise HTTPException(status_code= 500, detail=f"Failed to create products. {res.unwrap_err()}")
     service_time = T.time() - start_time
+    log.info({
+        "event":"CREATE.PRODUCTS",
+        "n":len(products)
+    })
     return Response(content=None,status_code=201,)
 
 
@@ -202,7 +208,7 @@ async def create_products(products:List[ProductDTO], product_service: ProductsSe
 @router.delete("/products/{pid}")
 async def delete_product_by_pid(pid:str,product_service: ProductsService = Depends(get_service)):
     exists = await product_service.find_by_pid(pid=pid)
-    if exists.is_ok:
+    if exists.is_err:
         error = exists.unwrap_err()
         raise error
         # raise HTTPException(detail="Product(pid={}) not found.".format(pid), status_code=404)

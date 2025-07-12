@@ -5,7 +5,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 from ocaapi.log.log import Log
 from ocaapi.db import connect_to_mongo,close_mongo_connection
-from ocaapi.controllers import observatories_router,catalogs_router,products_router
+from ocaapi.controllers import observatories_router,catalogs_router,products_router,v3_router
 from ocaapi.controllers.v2 import observatory_router_v2,xvariable_router,nameservice_router,product_router_v2
 
 
@@ -65,3 +65,4 @@ app.include_router(observatory_router_v2)
 app.include_router(xvariable_router)
 app.include_router(nameservice_router)
 app.include_router(product_router_v2)
+app.include_router(v3_router)

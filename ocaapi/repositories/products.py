@@ -24,7 +24,8 @@ class ProductsRepository(object):
     async def creates(self, products:List[Product]=[])->Result[Any,Exception]:
         try:
             docs = map(lambda p: p.model_dump(), products)
-            await self.collection.insert_many(docs)
+            res = await self.collection.insert_many(docs)
+            print("RES",res)
             return Ok(None)
         except Exception as e :
             return Err(e)

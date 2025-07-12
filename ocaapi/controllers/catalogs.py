@@ -64,7 +64,7 @@ async def create_catalogs(
 @router.delete("/catalogs/{cid}")
 async def delete_catalogs(cid:str, catalog_service:CatalogsService= Depends(get_service)):
     exists = await catalog_service.find_by_cid(cid=cid)
-    if not exists.is_some:
+    if  exists.is_err:
         return Response(content="Catalog(key={}) not found.".format(cid), status_code=403)
     else:
         response =await catalog_service.delete_by_cid(cid=cid)
@@ -72,13 +72,16 @@ async def delete_catalogs(cid:str, catalog_service:CatalogsService= Depends(get_
 
 @router.get("/catalogs")
 async def get_catalogs(skip:int = 0, limit:int = 10, catalog_service:CatalogsService= Depends(get_service)):
-    documents= await catalog_service.find_all(skip=skip,limit=limit)
-    return documents
+    result= await catalog_service.find_all(skip=skip,limit=limit)
+    if result.is_ok:
+        return result.unwrap_or([])
+    raise HTTPException(status_code=500, detail=str(result.unwrap_err()))
 
 @router.get("/catalogs/{cid}")
 async def get_catalogs_by_key(cid:str, catalog_service:CatalogsService= Depends(get_service)):
     catalog       =await catalog_service.find_by_cid(cid=cid)
-    if catalog.is_none:
+    print(catalog)
+    if catalog.is_err:
         raise HTTPException(detail="Catalog(key={}) not found".format(cid), status_code=404)
     return catalog.unwrap()
 

@@ -59,20 +59,26 @@ class ObservatoriesRepository(object):
         await cursor.close()
         return result
     async def find_by_obid(self,obid:str)->Option[ObservatoryDTO]:
-        res = await self.collection.find_one({"obid":obid})
-        if res:
-            del res["_id"]
-            return Some(
-                ObservatoryDTO(
-                    obid=res.get("obid","KEY"),
-                    title=res.get("title","Titulo del Observatorio"),
-                    image_url=res.get("image_url",""),
-                    catalogs=list(map(lambda x: LevelCatalog(**x),res.get("catalogs",[]))),
-                    description=res.get("description","Sin descripción por el momento."),
+        try: 
+            res = await self.collection.find_one({"obid":obid})
+            if res:
+                del res["_id"]
+                catalogs = list(map(lambda x: LevelCatalogDTO(**x),res.get("catalogs",[])))
+                result = Some(
+                    ObservatoryDTO(
+                        obid=res.get("obid","KEY"),
+                        title=res.get("title","Titulo del Observatorio"),
+                        image_url=res.get("image_url",""),
+                        catalogs=catalogs,
+                        description=res.get("description","Sin descripción por el momento."),
+                    )
                 )
-            )
-        else:
-            return NONE
+                return result
+            else:
+                return NONE
+        except Exception as e:
+            print(e)
+            return None
 
     def delete_by_obid(self,obid:str)->DeleteResult:
         return self.collection.delete_one({"obid": obid})

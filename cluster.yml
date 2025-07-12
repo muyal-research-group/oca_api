@@ -1,0 +1,51 @@
+services:
+  oca-db-0:
+    image: mongo:latest
+    command: ["mongod", "--config","/etc/mongo/mongod.conf"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - oca-db-0:/data/db
+      - "./db/oca-db-0.conf:/etc/mongo/mongod.conf"
+      - "./db/keyfile:/etc/mongo/keyfile:ro"
+    networks:
+      - oca
+    restart: unless-stopped
+
+  oca-db-1:
+    image: mongo:latest
+    command: ["mongod", "--config","/etc/mongo/mongod.conf"]
+    ports:
+      - "27018:27017"
+    volumes:
+      - oca-db-1:/data/db
+      - "./db/oca-db-0.conf:/etc/mongo/mongod.conf"
+      - "./db/keyfile:/etc/mongo/keyfile:ro"
+    networks:
+      - oca
+    restart: unless-stopped
+
+  oca-db-2:
+    image: mongo:latest
+    command: ["mongod", "--config","/etc/mongo/mongod.conf"]
+    ports:
+      - "27019:27017"
+    volumes:
+      - oca-db-2:/data/db
+      - "./db/oca-db-0.conf:/etc/mongo/mongod.conf"
+      - "./db/keyfile:/etc/mongo/keyfile:ro"
+    networks:
+      - oca
+    restart: unless-stopped
+
+networks:
+  oca:
+    external: true
+
+volumes:
+  oca-db-0:
+    external: true
+  oca-db-1:
+    external: true
+  oca-db-2:
+    external: true
