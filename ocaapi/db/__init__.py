@@ -1,7 +1,9 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient,AsyncIOMotorCollection
 
-MONGODB_URI = os.environ.get("MONGODB_URI","mongodb://oca:d22a75e9e729debc@localhost:27017/ocadb?authSource=admin")
+#MONGODB_URI = os.environ.get("MONGODB_URI","mongodb://oca:d22a75e9e729debc@localhost:27017/ocadb?authSource=admin")
+MONGODB_URI = os.environ.get("MONGODB_URI","mongodb://localhost:27017/ocadb")
+
 # client                   = MongoClient(MONGODB_URI)
 MONGO_DATABASE_NAME      = os.environ.get("MONGO_DATABASE_NAME","ocadb")
 # Initialize MongoClient

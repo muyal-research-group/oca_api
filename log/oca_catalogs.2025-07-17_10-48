@@ -1,0 +1,26 @@
+{
+    "timestamp": "2025-07-17 10:51:44,073",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "producttypes",
+    "display_name": "Tipos de producto",
+    "kind": "INTEREST",
+    "response_time": 0.04261350631713867
+}
+
+{
+    "timestamp": "2025-07-17 10:55:20,615",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "cities100132058",
+    "display_name": "Municipios",
+    "kind": "SPATIAL",
+    "response_time": 0.025831222534179688
+}
+

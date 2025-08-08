@@ -1,6 +1,6 @@
 
 from pydantic import BaseModel,Field
-from typing import List, Optional,Dict
+from typing import List, Optional,Dict,Any
 from bson import ObjectId
 from enum import Enum
 
@@ -44,7 +44,7 @@ class CatalogItem(BaseModel):
     display_name:str
     code:int
     description:str
-    metadata:Dict[str,str]
+    metadata:Dict[str,Any]
 
 
 class CatalogKind(str, Enum):

@@ -1,0 +1,78 @@
+{
+    "timestamp": "2025-07-25 08:35:02,811",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "stateasaassas11",
+    "display_name": "Estad",
+    "kind": "SPATIAL",
+    "response_time": 0.005716562271118164
+}
+
+{
+    "timestamp": "2025-07-25 08:36:24,467",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "easaassas11",
+    "display_name": "Estad",
+    "kind": "SPATIAL",
+    "response_time": 0.0029463768005371094
+}
+
+{
+    "timestamp": "2025-07-25 08:36:31,740",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "easassas11",
+    "display_name": "Estad",
+    "kind": "SPATIAL",
+    "response_time": 0.0021610260009765625
+}
+
+{
+    "timestamp": "2025-07-25 08:36:39,217",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "eaassas11",
+    "display_name": "Estad",
+    "kind": "SPATIAL",
+    "response_time": 0.002160787582397461
+}
+
+{
+    "timestamp": "2025-07-25 08:37:07,540",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "eaassas1111",
+    "display_name": "Estad",
+    "kind": "SPATIAL",
+    "response_time": 0.0027379989624023438
+}
+
+{
+    "timestamp": "2025-07-25 08:37:18,790",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "eaassas11s",
+    "display_name": "Estad",
+    "kind": "SPATIAL",
+    "response_time": 0.0033419132232666016
+}
+

@@ -12,7 +12,7 @@ from ocaapi.controllers.v2 import observatory_router_v2,xvariable_router,nameser
 LOG_DEBUG = bool(int(os.environ.get("LOG_DEBUG","1")))
 log = Log(
     name=os.environ.get("LOG_NAME","ocapi"),
-    path=os.environ.get("LOG_OUTPUT_PATH","/log"),
+    path=os.environ.get("LOG_OUTPUT_PATH","./log"),
     console_handler_filter= lambda x : LOG_DEBUG
 )
 title = os.environ.get("OPENAPI_TITLE","OCA - API")

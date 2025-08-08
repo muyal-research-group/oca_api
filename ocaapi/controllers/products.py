@@ -17,7 +17,7 @@ from ocaapi.log.log import Log
 LOG_DEBUG = bool(int(os.environ.get("LOG_DEBUG","1")))
 log = Log(
     name=os.environ.get("PRODUCTS_LOG_NAME","oca_products"),
-    path=os.environ.get("LOG_OUTPUT_PATH","/log"),
+    path=os.environ.get("LOG_OUTPUT_PATH","./log"),
     console_handler_filter= lambda x : LOG_DEBUG
 )
 

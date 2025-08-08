@@ -7,7 +7,7 @@ services:
     volumes:
       - oca-db-0:/data/db
       - "./db/oca-db-0.conf:/etc/mongo/mongod.conf"
-      - "./db/keyfile:/etc/mongo/keyfile:ro"
+      #- "./db/keyfile:/etc/mongo/keyfile:ro"
     networks:
       - oca
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
     volumes:
       - oca-db-1:/data/db
       - "./db/oca-db-0.conf:/etc/mongo/mongod.conf"
-      - "./db/keyfile:/etc/mongo/keyfile:ro"
+      #- "./db/keyfile:/etc/mongo/keyfile:ro"
     networks:
       - oca
     restart: unless-stopped
@@ -33,7 +33,7 @@ services:
     volumes:
       - oca-db-2:/data/db
       - "./db/oca-db-0.conf:/etc/mongo/mongod.conf"
-      - "./db/keyfile:/etc/mongo/keyfile:ro"
+      #- "./db/keyfile:/etc/mongo/keyfile:ro"
     networks:
       - oca
     restart: unless-stopped

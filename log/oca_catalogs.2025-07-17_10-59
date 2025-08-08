@@ -1,0 +1,13 @@
+{
+    "timestamp": "2025-07-17 10:59:04,519",
+    "level": "INFO",
+    "logger_name": "oca_catalogs",
+    "thread_name": "MainThread",
+    "event": "CREATE.CATALOG",
+    "exists": false,
+    "cid": "cp0100099998",
+    "display_name": "C\u00f3digos Postales",
+    "kind": "SPATIAL",
+    "response_time": 0.4932670593261719
+}
+
